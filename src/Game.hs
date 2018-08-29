@@ -1,6 +1,4 @@
-module Game
-    (
-    ) where
+module Game where
 
 import qualified Data.Map as Map
 
@@ -79,8 +77,8 @@ propagateAsset :: Ray -> Asset -> Either Consequence Ray
 propagateAsset _          (Asset Pharaoh _  c) = Left $ Lose c
 
 propagateAsset (Ray p or) (Asset Anubis  oa _)
-    | or == oa  = Left Stop
-    | otherwise = Left $ Kill p
+    | or == turnFlip oa  = Left Stop
+    | otherwise          = Left $ Kill p
 
 propagateAsset (Ray p or) (Asset Pyramid oa _) =
     case Map.lookup (oa, or) pyramidReflectionMap of
@@ -104,3 +102,11 @@ fireRay board ray@(Ray p _) =
         Left c  -> c
         Right r -> fireRay board r
 
+-- Pyramid: North |\ , West /|, South \|, East |/
+classicBoard :: Board
+classicBoard = Map.fromList
+    [((0, 2), Asset Pyramid West  White),
+     ((0, 3), Asset Anubis  North White),
+     ((0, 4), Asset Pharaoh North White),
+     ((0, 5), Asset Anubis  North White),
+     ((0, 9), Asset Sphinx  North White)]
