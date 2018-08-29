@@ -8,7 +8,7 @@ data Orientation = North
                  | West
                  | South
                  | East
-                 deriving (Enum, Show)
+                 deriving (Enum, Eq, Ord, Show)
 
 turnLeft :: Orientation -> Orientation
 turnLeft North = West
@@ -22,11 +22,11 @@ turnRight West  = North
 turnRight South = West
 turnRight East  = South
 
-flip :: Orientation -> Orientation
-flip South = North
-flip North = South
-flip East  = West
-flip West  = East
+turnFlip :: Orientation -> Orientation
+turnFlip South = North
+turnFlip North = South
+turnFlip East  = West
+turnFlip West  = East
 
 data Piece = Pharaoh
            | Anubis
@@ -48,9 +48,15 @@ data Asset = Asset
 
 type Position = (Int, Int)
 
-type Board = Map.Map Position (Maybe Asset)
+type Board = Map.Map Position Asset
 
 data Ray = Ray Position Orientation
+
+forward :: Ray -> Ray
+forward (Ray (x, y) North) = Ray (x, y + 1) North
+forward (Ray (x, y) West)  = Ray (x - 1, y) West
+forward (Ray (x, y) South) = Ray (x, y - 1) South
+forward (Ray (x, y) East)  = Ray (x + 1, y) East
 
 data Consequence = Kill Position
                  | Lose Colour
@@ -58,7 +64,8 @@ data Consequence = Kill Position
 
 -- Pyramid: North |\ , West /|, South \|, East |/
 -- mapping pyramid and ray orientation
-pyramidReflectionMap :: Map.Map (Orientation, Orientation) Orientation = Map.fromList
+pyramidReflectionMap :: Map.Map (Orientation, Orientation) Orientation 
+pyramidReflectionMap = Map.fromList
     [((North, South), East),
      ((North, West),  North),
      ((West,  East),  North),
@@ -76,13 +83,13 @@ propagateAsset (Ray p or) (Asset Anubis  oa _)
     | otherwise = Left $ Kill p
 
 propagateAsset (Ray p or) (Asset Pyramid oa _) =
-    case Map.lookup (oa, or) of
+    case Map.lookup (oa, or) pyramidReflectionMap of
         Just o  -> Right $ forward $ Ray p o
         Nothing -> Left $ Kill p
 
 propagateAsset (Ray p or) (Asset Scarab oa _)
-    | or == oa || or == flip oa = Right $ forward $ Ray p $ turnLeft or
-    | otherwise                 = Right $ forward $ Ray p $ turnRight or
+    | or == oa || or == turnFlip oa = Right $ forward $ Ray p $ turnLeft or
+    | otherwise                     = Right $ forward $ Ray p $ turnRight or
 
 propagateAsset r          (Asset Sphinx _  _) = Left Stop
 
