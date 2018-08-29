@@ -103,6 +103,7 @@ fireRay board ray@(Ray p _) =
         Right r -> fireRay board r
 
 -- Pyramid: North |\ , West /|, South \|, East |/
+-- Scarab : North *\, South \, West /, East /* (* is the head of the scarab)
 classicBoard :: Board
 classicBoard = Map.fromList
     [((0, 2), Asset Pyramid West  White),
@@ -130,5 +131,4 @@ classicBoard = Map.fromList
      ((7, 4), Asset Anubis South Red),
      ((7, 5), Asset Pharaoh South Red),
      ((7, 6), Asset Anubis South Red),
-     ((7, 7), Asset Pyramid East Red)
-     ]
+     ((7, 7), Asset Pyramid East Red)]
