@@ -6,6 +6,13 @@ import Graphics.Gloss
 paintSquare :: Picture
 paintSquare = color orange $ rectangleSolid 0.9 0.9
 
+paintPiece :: Piece -> Picture
+paintPiece Pharaoh = blank
+paintPiece Anubis = blank
+paintPiece Pyramid = blank
+paintPiece Scarab = blank
+paintPiece Sphinx = blank
+
 paintBackground :: Picture
 paintBackground = 
     pictures [translate (fromIntegral x) (fromIntegral y) paintSquare
