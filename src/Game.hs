@@ -1,12 +1,26 @@
 module Game where
 
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
+import Control.Monad.State
 
 data Orientation = North
                  | West
                  | South
                  | East
                  deriving (Enum, Eq, Ord, Show)
+
+data Twist = TwistLeft | TwistRight
+
+orientationToDirection :: Map.Map Orientation -> Position
+orientationToDirection o = Map.lookup o $ Map.fromList
+    [ (North, ( 0,  1))
+    , (West,  (-1,  0))
+    , (South, ( 0, -1))
+    , (East,  ( 1,  0)) ]
+
+translate :: Position -> Orientation -> Position
+translate (x, y) o = (x + dx, y + dy)
+    where (dx, dy) = orientationToDirection o
 
 turnLeft :: Orientation -> Orientation
 turnLeft North = West
@@ -37,6 +51,9 @@ data Colour = Red
             | White
             | Neutral
             deriving (Show, Eq)
+
+data PlayerTurn = Move   Position Orientation
+                | Rotate Position Twist
 
 data Asset = Asset
     { piece       :: Piece
@@ -102,6 +119,40 @@ fireRay board ray@(Ray p _) =
         Left c  -> c
         Right r -> fireRay board r
 
+type BoardState a = State Board a
+
+moveAsset :: Position -> Position -> BoardState (Maybe Asset)
+moveAsset p1 p2 = do
+    asset <- Map.lookup p1 <$> get
+    case asset of
+        Just asset -> modify (Map.insert p2 asset . Map.delete p1)
+        Nothing    -> return ()
+    return asset
+
+data MoveType = SimpleMove | SwapMove | NoMove
+
+moveType :: Asset -> Maybe Asset -> MoveType
+moveType (Asset Sphinx _ _) _                          = NoMove
+moveType _                  Nothing                    = SimpleMove
+moveType (Asset Scarab _ _) (Just (Asset Pyramid _ _)) = SwapMove
+moveType (Asset Scarab _ _) (Just (Asset Anubis  _ _)) = SwapMove
+moveType _                  _                          = NoMove
+
+tryMove :: Asset -> Position -> Orientation -> BoardState Bool
+tryMove a p1 o
+    | mt == SwapMove   = swapAssets p1 p2 >> return True
+    | mt == SimpleMove = moveAsset p1 p2  >> return True
+    | otherwise        = return False
+    where mt = moveType a $ gets $ Map.lookup p2
+          p2 = translate p1 o
+
+updateBoard :: PlayerTurn -> BoardState Bool
+updateBoard (Move p o) = do
+    asset <- gets $ Map.lookup p
+    case asset of
+        Nothing -> return False
+        Just a  -> tryMove a p o
+    
 -- Pyramid: North |\ , West /|, South \|, East |/
 -- Scarab : North *\, South \, West /, East /* (* is the head of the scarab)
 classicBoard :: Board
