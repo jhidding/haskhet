@@ -2,6 +2,7 @@ module Game where
 
 import qualified Data.Map.Strict as Map
 import Control.Monad.State
+import Data.Maybe
 
 data Orientation = North
                  | West
@@ -11,15 +12,15 @@ data Orientation = North
 
 data Twist = TwistLeft | TwistRight
 
-orientationToDirection :: Map.Map Orientation -> Position
-orientationToDirection o = Map.lookup o $ Map.fromList
+orientationToDirection :: Orientation -> Position
+orientationToDirection o = fromJust $ Map.lookup o $ Map.fromList
     [ (North, ( 0,  1))
     , (West,  (-1,  0))
     , (South, ( 0, -1))
     , (East,  ( 1,  0)) ]
 
-translate :: Position -> Orientation -> Position
-translate (x, y) o = (x + dx, y + dy)
+translatePosition :: Position -> Orientation -> Position
+translatePosition (x, y) o = (x + dx, y + dy)
     where (dx, dy) = orientationToDirection o
 
 turnLeft :: Orientation -> Orientation
@@ -121,15 +122,24 @@ fireRay board ray@(Ray p _) =
 
 type BoardState a = State Board a
 
-moveAsset :: Position -> Position -> BoardState (Maybe Asset)
+swapAssets :: Position -> Position -> BoardState ()
+swapAssets p1 p2 = do
+    asset1 <- gets $ Map.lookup p1
+    asset2 <- gets $ Map.lookup p2
+    case (asset1, asset2) of
+        (Just a1, Just a2) -> modify (Map.insert p2 a1 . Map.insert p1 a2)
+        _                  -> return ()
+    return ()
+
+moveAsset :: Position -> Position -> BoardState ()
 moveAsset p1 p2 = do
-    asset <- Map.lookup p1 <$> get
+    asset <- gets $ Map.lookup p1
     case asset of
         Just asset -> modify (Map.insert p2 asset . Map.delete p1)
         Nothing    -> return ()
-    return asset
+    return ()
 
-data MoveType = SimpleMove | SwapMove | NoMove
+data MoveType = SimpleMove | SwapMove | NoMove deriving (Eq, Show)
 
 moveType :: Asset -> Maybe Asset -> MoveType
 moveType (Asset Sphinx _ _) _                          = NoMove
@@ -139,12 +149,14 @@ moveType (Asset Scarab _ _) (Just (Asset Anubis  _ _)) = SwapMove
 moveType _                  _                          = NoMove
 
 tryMove :: Asset -> Position -> Orientation -> BoardState Bool
-tryMove a p1 o
-    | mt == SwapMove   = swapAssets p1 p2 >> return True
-    | mt == SimpleMove = moveAsset p1 p2  >> return True
-    | otherwise        = return False
-    where mt = moveType a $ gets $ Map.lookup p2
-          p2 = translate p1 o
+tryMove a p1 o = do
+    board <- get
+    let p2 = translatePosition p1 o
+        mt = moveType a $ Map.lookup p2 board
+    case mt of
+        SwapMove   -> swapAssets p1 p2 >> return True
+        SimpleMove -> moveAsset p1 p2  >> return True
+        NoMove     -> return False
 
 updateBoard :: PlayerTurn -> BoardState Bool
 updateBoard (Move p o) = do
