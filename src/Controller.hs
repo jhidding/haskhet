@@ -27,16 +27,17 @@ moveSelection South (x, y) = (x, (y - 1) `max` 0)
 moveSelection East  (x, y) = ((x + 1) `min` 9, y)
 
 updateSelection :: (Position -> Position) -> GameState -> GameState
-updateSelection f s@(GameState _ sel) = s { selection = f sel }
+updateSelection f s@GameState{selection=sel} = s { selection = f sel }
 
 keyAction :: SpecialKey -> GameState -> GameState
 keyAction KeyUp    = updateSelection (moveSelection North)
-keyAction KeyLeft  = updateSelection (moveSelection West)
+keyAction KeyLeft  = updateSelection (moveSelection West) 
 keyAction KeyDown  = updateSelection (moveSelection South)
-keyAction KeyRight = updateSelection (moveSelection East)
+keyAction KeyRight = updateSelection (moveSelection East) 
+keyAction KeyEnter = cyclePhase
 keyAction _ = id
 
-inputKey :: Event -> GameState -> GameState
+inputKey :: Event-> GameState -> GameState
 inputKey (EventKey (SpecialKey k) Down _ _) gstate
   = keyAction k gstate
 inputKey _ gstate = gstate -- Otherwise keep the same

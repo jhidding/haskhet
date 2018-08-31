@@ -24,8 +24,10 @@ translatePosition (x, y) o = (x + dx, y + dy)
     where (dx, dy) = orientationToDirection o
 
 rotateEnum :: (Enum a, Bounded a) => Int -> a -> a
-rotateEnum dx x = toEnum $ (fromEnum x - minBound + dx)
-                     `mod` (maxBound - minBound) + minBound 
+rotateEnum dx x = toEnum $ ((fromEnum x - min + dx) 
+                     `mod` (max - min + 1)) + min
+                where max = fromEnum (maxBound `asTypeOf` x)
+                      min = fromEnum (minBound `asTypeOf` x)
 
 turnLeft :: Orientation -> Orientation
 turnLeft = rotateEnum 1
@@ -45,8 +47,7 @@ data Piece = Pharaoh
 
 data Colour = Red
             | White
-            | Neutral
-            deriving (Show, Eq)
+            deriving (Show, Eq, Enum, Bounded)
 
 data PlayerTurn = Move   Position Orientation
                 | Rotate Position Twist

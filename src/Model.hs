@@ -12,10 +12,15 @@ data GamePhase
 data GameState = GameState
     { board       :: Board
     , selection   :: Position
-    , animations  :: [Animation]
     , phase       :: GamePhase
     , player      :: Colour
     }
 
+cyclePhase :: GameState -> GameState
+cyclePhase g@GameState { phase = LaserFiring, player = player } =
+    g { phase = MoveSelection, player = rotateEnum 1 player }
+cyclePhase g@GameState { phase = MoveSelection } =
+    g { phase = LaserFiring }
+
 initialState :: GameState
-initialState = GameState classicBoard (0, 0) [] MoveSelection White
+initialState = GameState classicBoard (0, 0) MoveSelection White
