@@ -17,10 +17,13 @@ import PaintBoard
 --               initialState     -- Initial state
 --               view             -- View function
 --               input            -- Event function
---               step             -- Step function
+--               step             -- Step function 
 
 main :: IO ()
 main = do
-    display (InWindow "Khet" (100, 100) (800, 800))
-            black
-            $ paintBoard classicBoard
+    let (path, c) = fireRay classicBoard (Ray (9, 0) North)
+    p <- paintBoard classicBoard
+    let p' = pictures [p, color magenta (paintPath path)]
+    putStrLn $ "computed path: " ++ show path
+    display (InWindow "Khet" (1000, 800) (100, 100))
+            black p'

@@ -113,12 +113,20 @@ propagate :: Ray -> Maybe Asset -> Either Consequence Ray
 propagate r Nothing  = Right $ forward r
 propagate r (Just a) = propagateAsset r a
 
-fireRay :: Board -> Ray -> Consequence
-fireRay board ray@(Ray p _) = 
-    let nextRay = propagate ray (Map.lookup p board)
-    in case nextRay of
-        Left c  -> c
-        Right r -> fireRay board r
+type LaserPath = [Position]
+
+insideBoard :: Position -> Bool
+insideBoard (x, y) = x >= 0 && x < 10 && y >= 0 && y < 8
+
+fireRay :: Board -> Ray -> (LaserPath, Consequence)
+fireRay board ray@(Ray p _)
+    | insideBoard p =
+        let nextRay = propagate ray (Map.lookup p board)
+        in case nextRay of
+            Left c  -> ([p], c)
+            Right r -> (p:ps, c) where (ps, c) = fireRay board r
+    | otherwise =
+        ([], Stop)
 
 type BoardState a = State Board a
 

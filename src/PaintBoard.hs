@@ -2,21 +2,50 @@ module PaintBoard where
 
 import Game
 import Graphics.Gloss
+import qualified Data.Map.Strict as Map
 
 paintSquare :: Picture
-paintSquare = color orange $ rectangleSolid 0.9 0.9
+paintSquare = color blue $ rectangleSolid 0.9 0.9
 
-paintPiece :: Piece -> Picture
-paintPiece Pharaoh = blank
-paintPiece Anubis = blank
-paintPiece Pyramid = blank
-paintPiece Scarab = blank
-paintPiece Sphinx = blank
+colourChar :: Colour -> String
+colourChar White = "w"
+colourChar Red = "r"
+
+paintPiece :: Piece -> Colour -> IO Picture
+paintPiece Pharaoh c = scale 0.016 0.016 
+    <$> loadBMP ("./data/pharaoh-" ++ colourChar c ++ ".bmp")
+paintPiece Anubis c = scale 0.016 0.016
+    <$> loadBMP ("./data/anubis-" ++ colourChar c ++ ".bmp")
+paintPiece Pyramid c = scale 0.016 0.016
+    <$> loadBMP ("./data/pyramid-" ++ colourChar c ++ ".bmp")
+paintPiece Scarab c = scale 0.016 0.016
+    <$> loadBMP ("./data/scarab-" ++ colourChar c ++ ".bmp")
+paintPiece Sphinx c = scale 0.016 0.016
+    <$> loadBMP ("./data/sphinx-" ++ colourChar c ++ ".bmp")
 
 paintBackground :: Picture
 paintBackground = 
     pictures [translate (fromIntegral x) (fromIntegral y) paintSquare
              | x <- [0..9], y <- [0..7]]
 
-paintBoard :: Board -> Picture
-paintBoard board = scale 100.0 100.0 paintBackground
+paintAsset :: (Position, Asset) -> IO Picture
+paintAsset ((x, y), Asset piece o c) = do
+    p <- rotate ((- 90.0) * fromIntegral (fromEnum o)) <$> paintPiece piece c
+    return $ translate (fromIntegral y) (fromIntegral x) p
+
+paintAssets :: Board -> IO Picture
+paintAssets board = do
+    ps <- mapM paintAsset $ Map.toList board
+    return $ pictures ps
+
+paintBoard :: Board -> IO Picture
+paintBoard board = do
+    pieces <- paintAssets board
+    return $ scale 100.0 100.0
+           $ translate (- 4.5) (- 3.5)
+           $ pictures [paintBackground, pieces]
+
+paintPath :: LaserPath -> Picture
+paintPath p = scale 100.0 100.0
+            $ translate (- 4.5) (- 3.5)
+            $ line $ map (\(x, y) -> (fromIntegral x, fromIntegral y)) p
