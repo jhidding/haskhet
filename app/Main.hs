@@ -21,9 +21,9 @@ import PaintBoard
 
 main :: IO ()
 main = do
-    let (path, c) = fireRay classicBoard (Ray (9, 0) North)
+    let (path, c) = fireRay classicBoard $ forward (Ray (9, 0) North)
     p <- paintBoard classicBoard
-    let p' = pictures [p, color magenta (paintPath path)]
-    putStrLn $ "computed path: " ++ show path
+    let p' = pictures [p, color magenta (paintPath $ (9, 0) : path)]
+    putStrLn $ "computed path: " ++ show path ++ " and " ++ show c
     display (InWindow "Khet" (1000, 800) (100, 100))
             black p'

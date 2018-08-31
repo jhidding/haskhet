@@ -77,6 +77,7 @@ forward (Ray (x, y) East)  = Ray (x + 1, y) East
 data Consequence = Kill Position
                  | Lose Colour
                  | Stop
+                 deriving (Show)
 
 -- Pyramid: North |\ , West /|, South \|, East |/
 -- mapping pyramid and ray orientation
@@ -177,29 +178,29 @@ updateBoard (Move p o) = do
 -- Scarab : North *\, South \, West /, East /* (* is the head of the scarab)
 classicBoard :: Board
 classicBoard = Map.fromList
-    [((0, 2), Asset Pyramid West  White),
-     ((0, 3), Asset Anubis  North White),
-     ((0, 4), Asset Pharaoh North White),
-     ((0, 5), Asset Anubis  North White),
-     ((0, 9), Asset Sphinx  North White),
-     ((1, 7), Asset Pyramid North White),
-     ((2, 6), Asset Pyramid West  Red),
-     ((3, 0), Asset Pyramid West  Red),
-     ((3, 2), Asset Pyramid West  White),
-     ((3, 4), Asset Scarab  West  White),
-     ((3, 5), Asset Scarab  South White),
-     ((3, 7), Asset Pyramid North Red),
-     ((3, 9), Asset Pyramid South White),
-     ((4, 0), Asset Pyramid South Red),
-     ((4, 2), Asset Pyramid West  White),
+    [((2, 0), Asset Pyramid West  White),
+     ((3, 0), Asset Anubis  North White),
+     ((4, 0), Asset Pharaoh North White),
+     ((5, 0), Asset Anubis  North White),
+     ((9, 0), Asset Sphinx  North White),
+     ((7, 1), Asset Pyramid North White),
+     ((6, 2), Asset Pyramid East  Red),
+     ((0, 3), Asset Pyramid East  Red),
+     ((2, 3), Asset Pyramid West  White),
+     ((4, 3), Asset Scarab  West  White),
+     ((5, 3), Asset Scarab  South White),
+     ((7, 3), Asset Pyramid North Red),
+     ((9, 3), Asset Pyramid South White),
+     ((0, 4), Asset Pyramid North Red),
+     ((2, 4), Asset Pyramid South White),
      ((4, 4), Asset Scarab  North Red),
-     ((4, 5), Asset Scarab  East  Red),
-     ((4, 7), Asset Pyramid East  Red),
-     ((4, 9), Asset Pyramid West  White),
-     ((5, 3), Asset Pyramid South Red),
-     ((6, 2), Asset Pyramid South Red),
-     ((7, 0), Asset Sphinx  South Red),
-     ((7, 4), Asset Anubis  South Red),
-     ((7, 5), Asset Pharaoh South Red),
-     ((7, 6), Asset Anubis  South Red),
+     ((5, 4), Asset Scarab  East  Red),
+     ((7, 4), Asset Pyramid East  Red),
+     ((9, 4), Asset Pyramid West  White),
+     ((3, 5), Asset Pyramid West White),
+     ((2, 6), Asset Pyramid South Red),
+     ((0, 7), Asset Sphinx  South Red),
+     ((4, 7), Asset Anubis  South Red),
+     ((5, 7), Asset Pharaoh South Red),
+     ((6, 7), Asset Anubis  South Red),
      ((7, 7), Asset Pyramid East  Red)]

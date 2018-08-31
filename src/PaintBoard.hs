@@ -31,7 +31,7 @@ paintBackground =
 paintAsset :: (Position, Asset) -> IO Picture
 paintAsset ((x, y), Asset piece o c) = do
     p <- rotate ((- 90.0) * fromIntegral (fromEnum o)) <$> paintPiece piece c
-    return $ translate (fromIntegral y) (fromIntegral x) p
+    return $ translate (fromIntegral x) (fromIntegral y) p
 
 paintAssets :: Board -> IO Picture
 paintAssets board = do
