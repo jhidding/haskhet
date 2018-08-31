@@ -17,7 +17,7 @@ view (GameState board selector) = do
     let (path, c) = fireRay board $ forward (Ray (9, 0) North)
     p <- paintBoard board
     let p' = scale 100.0 100.0
-           $ translate (- 4.5) (- 3.5)
+           $ translate (- 4.5) (- 3.25)
            $ pictures [
                 p, color magenta (paintPath $ (9, 0) : path),
                 paintSelector selector ]
