@@ -11,7 +11,7 @@ import PaintBoard
 import Graphics.Gloss.Interface.IO.Game
 
 main :: IO ()
-main = playIO (InWindow "Counter" (1000, 800) (10, 10)) -- Or FullScreen
+main = playIO (InWindow "Counter" (1000, 850) (10, 10)) -- Or FullScreen
               black            -- Background color
               10               -- Frames per second
               initialState     -- Initial state
