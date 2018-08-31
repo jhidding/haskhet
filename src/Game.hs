@@ -8,7 +8,7 @@ data Orientation = North
                  | West
                  | South
                  | East
-                 deriving (Enum, Eq, Ord, Show)
+                 deriving (Enum, Eq, Ord, Show, Bounded)
 
 data Twist = TwistLeft | TwistRight
 
@@ -23,23 +23,18 @@ translatePosition :: Position -> Orientation -> Position
 translatePosition (x, y) o = (x + dx, y + dy)
     where (dx, dy) = orientationToDirection o
 
+rotateEnum :: (Enum a, Bounded a) => Int -> a -> a
+rotateEnum dx x = toEnum $ (fromEnum x - minBound + dx)
+                     `mod` (maxBound - minBound) + minBound 
+
 turnLeft :: Orientation -> Orientation
-turnLeft North = West
-turnLeft West  = South
-turnLeft South = East
-turnLeft East  = North
+turnLeft = rotateEnum 1
 
 turnRight :: Orientation -> Orientation
-turnRight North = East
-turnRight West  = North
-turnRight South = West
-turnRight East  = South
+turnRight = rotateEnum (-1)
 
 turnFlip :: Orientation -> Orientation
-turnFlip South = North
-turnFlip North = South
-turnFlip East  = West
-turnFlip West  = East
+turnFlip = rotateEnum 2
 
 data Piece = Pharaoh
            | Anubis
@@ -197,7 +192,7 @@ classicBoard = Map.fromList
      ((5, 4), Asset Scarab  East  Red),
      ((7, 4), Asset Pyramid East  Red),
      ((9, 4), Asset Pyramid West  White),
-     ((3, 5), Asset Pyramid West White),
+     ((3, 5), Asset Pyramid West  White),
      ((2, 6), Asset Pyramid South Red),
      ((0, 7), Asset Sphinx  South Red),
      ((4, 7), Asset Anubis  South Red),

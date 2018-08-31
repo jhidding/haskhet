@@ -4,10 +4,10 @@ module Model where
 
 import Game
 
-data GameState = GameState {
-                   board       :: Board
-                 , elapsedTime :: Float
-                 }
+data GameState = GameState
+    { board       :: Board
+    , selection   :: Position
+    }
 
 initialState :: GameState
-initialState = GameState classicBoard 0
+initialState = GameState classicBoard (0, 0)

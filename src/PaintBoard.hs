@@ -41,11 +41,7 @@ paintAssets board = do
 paintBoard :: Board -> IO Picture
 paintBoard board = do
     pieces <- paintAssets board
-    return $ scale 100.0 100.0
-           $ translate (- 4.5) (- 3.5)
-           $ pictures [paintBackground, pieces]
+    return $ pictures [paintBackground, pieces]
 
 paintPath :: LaserPath -> Picture
-paintPath p = scale 100.0 100.0
-            $ translate (- 4.5) (- 3.5)
-            $ line $ map (\(x, y) -> (fromIntegral x, fromIntegral y)) p
+paintPath p = line $ map (\(x, y) -> (fromIntegral x, fromIntegral y)) p
