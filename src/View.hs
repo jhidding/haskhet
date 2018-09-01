@@ -4,4 +4,3 @@ module View where
 
 import Model
 import Game
-import PaintBoard
