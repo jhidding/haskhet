@@ -25,6 +25,7 @@ dependencies:
 - mtl
 - helm
 - random
+- linear
 
 library:
   source-dirs: src

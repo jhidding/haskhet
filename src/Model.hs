@@ -16,6 +16,8 @@ data GameState = GameState
     , player      :: Colour
     }
 
+type Model = GameState
+
 cyclePhase :: GameState -> GameState
 cyclePhase g@GameState { phase = LaserFiring, player = player } =
     g { phase = MoveSelection, player = rotateEnum 1 player }
